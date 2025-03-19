@@ -21,6 +21,8 @@
     *  **报告生成 Agent:**  结合 EZ 工具的被动扫描结果和 Agent 渗透测试报告，自动生成全面的测试报告。
     *  **更多 Agent 敬请期待...**  (后续版†本将包含更多专业的渗透测试 Agent)
 
+https://github.com/user-attachments/assets/056057aa-b60e-478e-b0eb-88b6d86b1a3d
+
 ## 使用说明 (Demo 版本)
 
 **请按照以下步骤体验 EZ AI Agent Demo 的基本功能。**
@@ -91,13 +93,7 @@ docker compose up
 2.  **输入目标地址 (Enter Target Address):**  在 `Logs` 选项卡中，输入您的靶场地址 (例如：http://本机内网地址:8089)。
 3.  **开始测试 (Start Testing):**  点击 "开始测试" 按钮。
 
-### 5. 演示视频
-
-下面是 EZ AI Agent 演示版的操作视频，可以帮助您了解系统的基本工作流程：
-
-https://github.com/user-attachments/assets/056057aa-b60e-478e-b0eb-88b6d86b1a3d
-
-
+### 5. 架构
 
 下图展示了 EZ AI Agent 的整体架构设计：
 
