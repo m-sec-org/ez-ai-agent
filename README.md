@@ -95,7 +95,9 @@ docker compose up
 
 下面是 EZ AI Agent 演示版的操作视频，可以帮助您了解系统的基本工作流程：
 
-<video src="pic/demo.mov" width="100%" controls></video>
+https://github.com/user-attachments/assets/056057aa-b60e-478e-b0eb-88b6d86b1a3d
+
+
 
 下图展示了 EZ AI Agent 的整体架构设计：
 
