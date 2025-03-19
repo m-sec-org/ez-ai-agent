@@ -1,0 +1,26 @@
+{
+  "name": "steel",
+  "version": "1.0.0",
+  "private": true,
+  "license": "ISC",
+  "author": "",
+  "scripts": {
+    "install": "npm run install:api && npm run install:ui",
+    "install:api": "cd api && npm install",
+    "install:ui": "cd ui && npm install",
+    "build": "npm run build:api && npm run build:ui",
+    "build:api": "cd api && npm run build",
+    "build:ui": "cd ui && npm run build",
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:ui\"",
+    "dev:api": "cd api && npm run dev",
+    "dev:ui": "cd ui && npm run dev",
+    "serve": "npm run serve:api",
+    "serve:api": "cd api && npm run start"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  },
+  "engines": {
+    "node": ">=18.12.0"
+  }
+}

@@ -1,0 +1,328 @@
+# webscan配置
+http:
+  # PerFolder 检测深度，定义 http://t.com/a/ 深度为 1, http://t.com/a 深度为 0
+  depth: 1
+  # 同时运行的Poc数量
+  parallel: 50
+  # 每秒最大请求数
+  max_qps: 1000
+  # http 连接失败，重试次数，默认0
+  retry: 0
+  # 读取 http 响应超时时间，不建议设置太小，否则可能影响到盲注的判断
+  http_timeout: 15
+  # 单个请求最大允许的跳转次数
+  max_redirect: 5
+  # 非强制添加header头，如果在请求头未发现此key，则新增key的值。目前默认一个user_agent key，新增其他key无效
+  headers:
+    user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36"
+  # 强制添加header头，map[string]string 格式，会覆盖原有header头，没有则新增，某些作用于header的poc会失效，此选项用于绕过某些waf
+  headers_force:
+  # 为 mitm 本身配置独立的代理,支持socks5，http
+  upstream_proxy: ""
+  # 为打 poc 模块配置独立的代理,支持socks5，http,当在webscan或者web命令行中使用--proxy，会覆盖此选项
+  poc_proxy: ""
+  # 白名单，主机名包含任意一个字符串即开启此主机的扫描，以逗号为分割，如127,localhost,weibo,如果命令行使用了--host参数，会覆盖此配置，即依照--host为准
+  white_host: ""
+  # 黑名单,主机名包含任意一个字符串即屏蔽此主机的扫描，以逗号为分割，如baidu,qq,gov,如果命令行使用了--disable-hosts参数，会覆盖此配置，即依照--disable-hosts为准
+  # 可同时和白名单参数--white_host一起使用，先走白，再走黑
+  black_host: ""
+  # 白名单poc，poc名包含任意一个字符串即开启此poc的扫描，以逗号为分割，如"log4j,xss,fastjson",如果命令行使用了--pocs，会覆盖此配置，即依照--pocs为准
+  pocs: ""
+  # 黑名单poc,poc名包含任意一个字符串即屏蔽此poc的扫描，以逗号为分割，如"jsonp,xss,ssrf",如果命令行使用了--disable-pocs参数，会覆盖此配置，即依照--disable-pocs为准
+  # 可同时和白名单参数--pocs一起使用，先走白，再走黑
+  disable_pocs: ""
+  # 最新请求最大失败数，同一个host，在最新的多少次请求，都报错了，代表可能被封锁IP了，将不在做此Host的测试
+  max_fail: 100
+  # 禁止扫描的路径关键词, 以逗号分割，如"/login,/resetpassword", 忽略大小写
+  disallowed_scan_path: "/new_post.php"
+  # 禁用严格模式, 默认情况下只允许扫描当前指定url的host. 若设置为true，将会扫描所有爬虫流量（可能会溅射到其他域名）
+  disable_strict_mode: false
+
+# apiscan配置项
+apiscan:
+  # 禁止扫描的请求方法。例如: "put,delete"
+  disable_methods: ""
+  # 禁止扫描的路径包含。例如: "/api/delete,droptable"
+  disable_paths: ""
+  headers:
+    User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36
+
+# 指纹识别配置
+finger:
+  # 禁用finger的特殊请求，比如t3协议识别，通过访问特定js.css识别
+  disable_special_probe: false
+  # 是否禁用主动指纹探测，每个folder层级都会发送几个主动指纹数据包进行探测，比如shiro、nacos等
+  disable_active_fingerprint_detect: false
+
+# webscan漏洞插件、模块配置
+plugins:
+  # sql注入模块,目前只有sqli时间盲注和报错注入
+  sqli:
+    # 闭合等级，和sqlmap一致，level:1-5，目前只针对时间和布尔盲注
+    level: 3
+    #  SQL语句等级，和sqlmap一致，level:1-3，目前只针对时间盲注
+    risk: 1
+  # dirsearch 模块字典，慎重字典数量，大量字典会导致发包严重
+  dirsearch:
+    # 字典路径,默认空代表无字典
+    dicc: ""
+  shiro:
+    # 按换行符读取文件，在默认的基础key上，新增其他key，自动和原有key去重
+    shiro_key_file: ""
+    # 在默认的基础key上，新增其他key，自动和原有key去重，多个key用逗号分割
+    shiro_key: ""
+  xss:
+    # xss盲打payload，可以用逗号分割多个payload，字段为空则不进行payload探测
+    blind_payload: ""
+  # web-brute和web-brute-passive爆破插件配置
+  web_brute:
+    # 用户名列表，以逗号分隔;。尽量控制用户列表的数量，数量太多会导致发包数指数级增加
+    username: "admin"
+    # 密码列表，以逗号分隔。密码不得小于2个，也需要尽量控制密码列表的数量
+    password: "admin,123456,1qaz2wsx,admin123"
+    # 用户名字典文件路径，文件内容应满足每行一个，如配置了此项，将附加在上面的用户名列表后
+    user_dict: ""
+    # 密码字典文件路径，文件内容应满足每行一个，如配置了此项，将附加在上面的密码列表后
+    pass_dict: ""
+    # 填充的user标签。在被动扫描下，会根据被动流量是否包含这个tag来进行爆破，不要使用常见的用户名作为tag_user
+    tag_user: "tagUser"
+    # 填充的password标签。在被动扫描下，会根据被动流量是否包含这个tag来进行爆破
+    tag_pass: "tagPass"
+  # rce相关golang插件配置
+  rce:
+    # 默认level 1的时候, 每个参数只发送一个探测ping payload(dns未配置的话会发curl payload), 为2的时候发送ping和curl的payload并且带有一些其他闭合，一个参数6个请求包
+    level: 1
+
+# servicescan扫描服务模块参数
+service:
+  # 建立 tcp 连接的超时时间
+  dail_timeout: 5
+  # udp 超时时间
+  udp_timeout: 5
+  # 监听网卡ping每秒最大发包数
+  max_ping_qps: 5000
+  # 监听网卡ping发包次数
+  send_ping_time: 3
+  # 端口扫描tcp扫描并行大小
+  parallel_tcp: 10000
+  # 端口扫描syn扫描并行大小
+  parallel_syn: 10000
+  # 端口扫描syn扫描发包次数
+  syn_send: 2
+  # 单个IP最大端口探测数，超过了则放弃此IP的端口扫描
+  max_port: 100
+  # 端口指纹扫描并行大小
+  parallel_finger: 30
+  # 运行hostscan poc时候并发数量
+  parallel_poc: 30
+
+
+# dnsscan模块参数
+dns:
+  # 爆破子域名并行数
+  brute_parallel: 700
+  # 单个api最大采集条数，超过则丢弃此api的全部
+  max_api: 5000
+  # 自定义dns服务器,逗号分隔,默认空，将使用内置约10个dns
+  dns_server: ""
+  # 根据子域名拼接http和https响应结果，匹配新的子域名
+  match_subdomain_from_http: true
+
+# web模块参数
+web:
+  # 各个模块速率限制
+  # 同时最多爆破多少个子域名,限制爆破单个子域名时候发包速率，在dns.brute_parallel配置
+  rate_brute_domain: 2
+  # 通过api收集子域名速率，速率1为比较好
+  rate_brute_domain_api: 1
+  # 解析子域名最大速率
+  rate_domain_resolver: 40
+  # 同时最多探测多少个ip
+  rate_scan_port: 5
+  # 探测单个ip最大速率
+  rate_scan_port_goroutine: 500
+  # 同时探测服务的最大速率
+  rate_scan_service: 50
+  # http探测最大速率
+  rate_httpinfo: 40
+  # 同时最大爬虫多少个url
+  rate_crawler: 4
+  # 同时暴力破解服务的最大速率
+  rate_brute: 4
+  # 同时打主机poc的最大速率
+  rate_scan_poc: 20
+
+# 无头浏览器爬虫配置，在webscan，web子命令下生效
+crawler:
+  chrome_path: ""
+  no_sandbox: true
+  leak_less: true
+  disable_headless: false
+  disable_images: false
+  proxy: ""
+  running_chrome:
+      enable: false
+      ip: 127.0.0.1
+      port: 0
+  hawk_remote:
+      enable: false
+      browser_alias: bugfly
+      HAWKRemote_address: http://127.0.0.1:7317
+  form_fill:
+      enable: true
+      enableCustom: false
+      customFields:
+          userName: ""
+          accountName: ""
+          password: ""
+          email: ""
+          address: ""
+          phone: ""
+          SMSCode: ""
+          captchaCode: ""
+          IDCard: ""
+          company: ""
+          defaultText: ""
+  chrome_temp_dir: ./chrome_temp
+  headers:
+      - domain: '*'
+        headers: {}
+  user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36 Edg/108.0.1462.54
+  local_storage: {}
+  session_storage: {}
+  max_run_time: -1
+  max_depth: 10
+  navigate_timeout: 10
+  load_timeout: 10
+  max_page_concurrent: 5
+  max_page_count: 1000
+  max_interactive: 1000
+  scan_scope:
+      scan_scope: 2
+      domain_exclude: []
+      domain_include: []
+  stable_monitor:
+      stable_timeout: 10
+      stable_degree: 0
+      monitor_duration: 800
+  page_analyze_timeout: 100
+  new_task_filter_config:
+      disallow_status_code:
+          - 404
+          - 601
+          - 0
+      disallow_suffix: []
+      danger_fields: []
+  results_filter_config:
+      disallow_status_code:
+          - 404
+          - 601
+          - 0
+      disallow_suffix:
+          - .js
+          - .jsx
+          - .vue
+          - .ng
+          - .jsx
+          - .tsx
+      danger_fields: []
+  deduplication_level: 2
+  logger_config:
+      logger_level: info
+      logger_file_name: ./log/HAWK-X_Crawler.log
+      logger_output_level: []
+      logger_file_max_size: 50
+      logger_file_max_backups: 5
+      logger_file_max_age: 30
+      logger_prefix: ""
+
+# 数据库配置，如果redis不为空则使用redis，否则使用sqlite（使用redis更高效，sqlite只适合小测试需求）
+db:
+  # sqlite配置：sqlite数据库文件的路径
+  sqlite: "ez.db?_busy_timeout=10000"
+  # redis配置,如: pass@127.0.0.1:6379:0，如果密码为空，则入@127.0.0.1:6379:0
+  redis: ""
+  # redis webscan配置,如: pass@127.0.0.1:6379:0，如果密码为空，则入@127.0.0.1:6379:0
+  redis_webscan: ""
+  # mysql 配置，如果配置了，则建立vuln表，保存结果,非深度用户慎用
+  mysql:
+    # 是否启用
+    use: false
+    db_name: "ez"
+    host: 127.0.0.1
+    password: ""
+    port: 3306
+    timeout: 60s
+    user: root
+  # elasticsearch 配置，如果配置了，将存储代理的数据包到数据库，便于聚合，查询，如http://127.0.0.1:9200
+  elastic_addr: ""
+  # 存入数据库时是否忽略返回体，服务器低配置可配置为true
+  elastic_ignore_resp_body: false
+  elastic_user: ""
+  elastic_pwd: ""
+
+# 反连平台配置
+reverse:
+  # disable为true时，禁用所有使用了反连的POC
+  disable: true
+  # 如 test123
+  token: abcdedf
+  # 如1.1.1.1:8080
+  http: ""
+  # 如 reverse.domain.com
+  dns: ""
+  # 如 1.1.1.1:8082
+  rmi: ""
+  # 如 1.1.1.1:8083
+  ldap: ""
+  # 反连服务，匹配的dns,默认为空则为reverse.dns字段值，可使用逗号添加多个，如n.aaa.com,n.bbb.com
+  parse_dns: ""
+
+brute:
+  # 爆破超时时间，内网IP全部默认3s
+  timeout: 8
+  # 总爆破并行大小
+  parallel: 200
+  # 爆破分组大小
+  groups: 600
+  # 爆破单个主机服务同时最大并发
+  service_parallel:
+    ssh: 10
+    wmi: 16
+    smb: 40
+    mysql: 16
+    vnc: 5
+    redis: 50
+    mssql: 20
+    vmauth: 16
+    esxi: 10
+    ftp: 16
+    ldap: 16
+    posrtgresql: 20
+    oracle: 16
+    mongodb: 16
+    snmp: 10
+    rdp: 4
+
+# 一些api配置，如fofa
+api:
+  # 自定义api地址，默认为 https://fofa.info
+  fofa_api: "https://fofa.info"
+  fofa_email: ""
+  fofa_key: ""
+  # 每次查询间隔时间，单位秒
+  fofa_sleep: 3
+  # fofa 返回条数大小
+  fofa_size: 10000
+
+# 扫描结果配置
+result:
+  # 过滤扫描结果>=level ,可接受的值 0，1，2，3，分别代表指纹，中危，高危，严重
+  level: 1
+  # wecom 企业微信 机器人key
+  wecom_key: ""
+  # wecom 企业微信接收同目标同类型阈值，默认0不限制，超过wecom_skip_time将不再给企业微信发通知微信
+  wecom_skip_time: 0
+
+# 研究者模式，输出一些可以测试的点+fuzz，发包量为5-10倍，适合本地环境的研究，不必要信息以及会误报可能比较多
+research_mode: false

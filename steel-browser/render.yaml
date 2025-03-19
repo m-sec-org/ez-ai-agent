@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: steel-browser
+    env: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /v1/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+    disk:
+      name: cache
+      mountPath: /app/.cache
+      sizeGB: 1

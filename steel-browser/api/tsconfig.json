@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "target": "ESNext",
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "outDir": "build",
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": false,
+    "strict": true
+  },
+  "include": ["./src/**/*", "workers/createWorker.ts"],
+  "files": ["./src/types/fastify.d.ts"]
+}

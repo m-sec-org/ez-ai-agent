@@ -1,0 +1,73 @@
+services:
+    agent:
+        platform: linux/amd64
+        build:
+            context: ./ez_ai_agent_demo
+            dockerfile: Dockerfile
+        ports:
+            - "5555:5555"
+        env_file:
+            - ./.env
+        networks:
+            - ez-network
+        depends_on:
+            - steel-api
+            - steel-ui
+        volumes:  
+            - ./ez_tools:/app/ez 
+    steel-api:
+        platform: linux/amd64
+        build:
+            context: ./steel-browser/api
+            dockerfile: Dockerfile
+            args:
+                NODE_VERSION: 22.13.0
+        ports:
+            - "3000:3000"
+            - "9223:9223"
+        networks:
+            - ez-network
+    steel-ui:
+        build:
+            context: ./steel-browser/ui
+            dockerfile: Dockerfile
+            args:
+                VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+                VITE_WS_URL: ${VITE_WS_URL:-ws://localhost:3000}
+                VITE_OPENAPI_URL: ${VITE_OPENAPI_URL:-http://localhost:3000/documentation/json}
+        ports:
+            - "5173:5173"
+        env_file:
+            - ./.env
+        environment:
+            - VITE_API_URL=${VITE_API_URL:-http://localhost:3000}
+            - VITE_WS_URL=${VITE_WS_URL:-ws://localhost:3000}
+            - VITE_OPENAPI_URL=${VITE_OPENAPI_URL:-http://steel-api:3000/documentation/json}
+        depends_on:
+            - steel-api
+        networks:
+            - ez-network
+    test-target:
+        build:
+            context: ./ez_target
+            dockerfile: Dockerfile
+        ports:
+            - "8089:80"
+        networks:
+            - ez-network
+        depends_on:
+            - test-target-db
+    test-target-db:
+        image: mysql:8.0
+        environment:
+            MYSQL_ROOT_PASSWORD: Password123
+            MYSQL_DATABASE: ez_target
+        ports:
+            - "3306:3306"
+        volumes:
+            - ./ez_target/init.sql:/docker-entrypoint-initdb.d/init.sql
+        networks:
+            - ez-network
+networks:
+    ez-network:
+        driver: bridge
